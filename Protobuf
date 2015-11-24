@@ -4,6 +4,12 @@ from google.protobuf.internal import decoder
 from google.protobuf.internal import encoder
 import socket,uuid
 
+#protobuf这里就不介绍了
+#python对于protobuf的支持可以安装protobuf模块进行支持
+#通过protoc工具生成_pb2.py文件  例如本例中的CommunitClubSysMsg_pb2
+#如果想通过protobuf进行和其他服务端通信，可以使用google.protobuf.internal下的decoder和encoder，对于报文进行加报文头
+#报文头内容为报文的长度进行base128算法的结果、base128算法是一种变长编码算法。具体介绍可以google下百度资料较少实现也并不复杂
+
 clubsys = CommunityClubSysMsg_pb2.ClubSysMsg();
 clubsys.msgType = CommunityClubSysMsg_pb2.REQUEST;
 clubsys.requestType = CommunityClubSysMsg_pb2.ADMIN_UPDATE_LOAN_STATUS;
