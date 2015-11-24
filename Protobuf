@@ -1,0 +1,38 @@
+#!/usr/bin/python
+import CommunityClubSysMsg_pb2
+from google.protobuf.internal import decoder
+from google.protobuf.internal import encoder
+import socket,uuid
+
+clubsys = CommunityClubSysMsg_pb2.ClubSysMsg();
+clubsys.msgType = CommunityClubSysMsg_pb2.REQUEST;
+clubsys.requestType = CommunityClubSysMsg_pb2.ADMIN_UPDATE_LOAN_STATUS;
+clubsys.sessionId = str( uuid.uuid1() );
+loanStatus = clubsys.clubsysRequestAdminUpdateLoanStatus;
+loanStatus.loanId = 950678
+loanStatus.applyStatus = 4
+inputString = clubsys.SerializePartialToString();
+varint = encoder._VarintBytes(len(inputString))
+sendMsg = varint+inputString;
+
+#socket请求服务地址
+mysock = socket.socket( socket.AF_INET, socket.SOCK_STREAM );
+mysock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+try:
+    server_address = ( "10.10.21.76", 20001 );
+    mysock.connect(server_address);
+except socket.error,msg:
+    print msg
+
+mysock.send( sendMsg );
+BUFFSIZE = 3
+returnStr = mysock.recv(BUFFSIZE);
+msgLength,jumpLength = decoder._DecodeVarint(returnStr,0)
+#读取数据真实长度
+message = mysock.recv(msgLength+jumpLength-3);
+returnStr= returnStr+message;
+
+clubsys.ParseFromString(returnStr[jumpLength::])
+print returnStr;
+print clubsys
+
